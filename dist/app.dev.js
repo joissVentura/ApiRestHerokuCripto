@@ -38,7 +38,7 @@ app.get('/api/usuarios/:id', function (req, res) {
   var id = req.params.id;
   var sql = "SELECT * FROM usuarios WHERE id = ".concat(id);
   connection.query(sql, function (error, result) {
-    if (error) throw error;
+    if (error) console.log(error);
 
     if (result.length > 0) {
       res.status(200).json(result);
@@ -56,7 +56,7 @@ app.post('/api/usuarios/add', function (req, res) {
 
   if (customerObj.username != null & customerObj.pass != null) {
     connection.query(sql, customerObj, function (error) {
-      if (error) throw error;
+      if (error) console.log(error);
       res.status(200).send('Usuario agregado.');
     });
   } else {
@@ -65,7 +65,12 @@ app.post('/api/usuarios/add', function (req, res) {
 }); //  Connexion al mysql
 
 connection.connect(function (error) {
-  if (error) throw error;
+  var errorEmited = error;
+
+  try {} catch (error) {
+    console.log(errorEmited);
+  }
+
   console.log('Base de datos conectada y corriendo');
 });
 app.listen(PORT, function () {

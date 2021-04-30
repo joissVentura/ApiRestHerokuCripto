@@ -40,7 +40,7 @@ app.get('/api/usuarios/:id', (req, res) => {
   const { id } = req.params;
   const sql = `SELECT * FROM usuarios WHERE id = ${id}`;
   connection.query(sql, (error, result) => {
-    if (error) throw error;
+    if (error) console.log(error);
 
     if (result.length > 0) {
       res.status(200).json(result);
@@ -59,7 +59,7 @@ app.post('/api/usuarios/add', (req, res) => {
   };
   if(customerObj.username != null & customerObj.pass != null){
     connection.query(sql, customerObj, error => {
-      if (error) throw error;
+      if (error) console.log(error);
       res.status(200).send('Usuario agregado.');
     });
   }else{
@@ -70,7 +70,12 @@ app.post('/api/usuarios/add', (req, res) => {
 
 //  Connexion al mysql
 connection.connect(error => {
-  if (error) throw error;
+  const errorEmited = error;
+  try {
+    
+  } catch (error) {
+    console.log(errorEmited)
+  }
   console.log('Base de datos conectada y corriendo');
 });
 
