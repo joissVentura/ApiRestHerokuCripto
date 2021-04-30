@@ -6,89 +6,73 @@ const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3050;
 
 const app = express();
-
 app.use(bodyParser.json());
 
-// MySql
+// Credenciales mysql
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'rootpass',
-  database: 'node20_mysql'
+  password: '',
+  database: 'distribuido',
+  port:'3307'
 });
 
-// Route
+// Routing
 app.get('/', (req, res) => {
-  res.send('Welcome to my API!');
+  res.status(200).send('Its all good JS');
 });
 
-// all customers
-app.get('/customers', (req, res) => {
-  const sql = 'SELECT * FROM customers';
+    // Obtener usuarios
+
+app.get('/api/usuarios', (req, res) => {
+  const sql = 'SELECT * FROM usuarios';
 
   connection.query(sql, (error, results) => {
     if (error) throw error;
     if (results.length > 0) {
-      res.json(results);
+      res.status(200).json(results);
     } else {
       res.send('Not result');
     }
   });
 });
 
-app.get('/customers/:id', (req, res) => {
+app.get('/api/usuarios/:id', (req, res) => {
   const { id } = req.params;
-  const sql = `SELECT * FROM customers WHERE id = ${id}`;
+  const sql = `SELECT * FROM usuarios WHERE id = ${id}`;
   connection.query(sql, (error, result) => {
     if (error) throw error;
 
     if (result.length > 0) {
-      res.json(result);
+      res.status(200).json(result);
     } else {
-      res.send('Not result');
+      res.send('No hay resultados');
     }
   });
 });
 
-app.post('/add', (req, res) => {
-  const sql = 'INSERT INTO customers SET ?';
+app.post('/api/usuarios/add', (req, res) => {
+  const sql = 'INSERT INTO usuarios SET ?';
 
   const customerObj = {
-    name: req.body.name,
-    city: req.body.city
+    user: req.body.user,
+    password: req.body.password
   };
-
-  connection.query(sql, customerObj, error => {
-    if (error) throw error;
-    res.send('Customer created!');
-  });
+  if(customerObj.user != null & customerObj.password != null){
+    connection.query(sql, customerObj, error => {
+      if (error) throw error;
+      res.status(200).send('Usuario agregado.');
+    });
+  }else{
+    res.status(500).send("Algunos campos están vacios")
+  }
+  
 });
 
-app.put('/update/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, city } = req.body;
-  const sql = `UPDATE customers SET name = '${name}', city='${city}' WHERE id =${id}`;
-
-  connection.query(sql, error => {
-    if (error) throw error;
-    res.send('Customer updated!');
-  });
-});
-
-app.delete('/delete/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = `DELETE FROM customers WHERE id= ${id}`;
-
-  connection.query(sql, error => {
-    if (error) throw error;
-    res.send('Delete customer');
-  });
-});
-
-// Check connect
+//  Connexion al mysql
 connection.connect(error => {
   if (error) throw error;
-  console.log('Database server running!');
+  console.log('Base de datos conectada y corriendo');
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`El servidor se está ejecutando en ${PORT}`));
