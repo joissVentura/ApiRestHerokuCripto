@@ -10,13 +10,12 @@ app.use(bodyParser.json());
 
 // Credenciales mysql
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'distribuido',
-  port:'3307'
+  host: 'us-cdbr-east-03.cleardb.com',
+  user: 'b21cddb959b45a',
+  password: '6314b0d2',
+  database: 'heroku_5edbdcae5318cee'
 });
-
+// mysql://b21cddb959b45a:6314b0d2@us-cdbr-east-03.clearddb.com/heroku_5edbdcae5318cee?reconnect=true
 // Routing
 app.get('/', (req, res) => {
   res.status(200).send('Its all good JS');
@@ -55,10 +54,10 @@ app.post('/api/usuarios/add', (req, res) => {
   const sql = 'INSERT INTO usuarios SET ?';
 
   const customerObj = {
-    user: req.body.user,
-    password: req.body.password
+    username: req.body.username,
+    pass: req.body.pass
   };
-  if(customerObj.user != null & customerObj.password != null){
+  if(customerObj.username != null & customerObj.pass != null){
     connection.query(sql, customerObj, error => {
       if (error) throw error;
       res.status(200).send('Usuario agregado.');
