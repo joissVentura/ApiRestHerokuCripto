@@ -10,12 +10,14 @@ var PORT = process.env.PORT || 3050;
 var app = express();
 app.use(bodyParser.json()); // Credenciales mysql
 
-var connection = mysql.createConnection({
+/* const connection = mysql.createConnection({
   host: 'us-cdbr-east-03.cleardb.com',
   user: 'b21cddb959b45a',
   password: '6314b0d2',
   database: 'heroku_5edbdcae5318cee'
-}); // mysql://b21cddb959b45a:6314b0d2@us-cdbr-east-03.clearddb.com/heroku_5edbdcae5318cee?reconnect=true
+}); */
+
+var connection; // mysql://b21cddb959b45a:6314b0d2@us-cdbr-east-03.clearddb.com/heroku_5edbdcae5318cee?reconnect=true
 // Routing
 
 app.get('/', function (req, res) {
@@ -64,15 +66,39 @@ app.post('/api/usuarios/add', function (req, res) {
   }
 }); //  Connexion al mysql
 
-connection.connect(function (error) {
-  var errorEmited = error;
+var handleDisconnect = function handleDisconnect() {
+  connection = mysql.createConnection({
+    host: 'us-cdbr-east-03.cleardb.com',
+    user: 'b21cddb959b45a',
+    password: '6314b0d2',
+    database: 'heroku_5edbdcae5318cee'
+  }); // Recrea la conexion
 
-  try {} catch (error) {
-    console.log(errorEmited);
-  }
+  connection.connect(function (err) {
+    if (err) {
+      console.log('error when connecting to db:', err);
+      setTimeout(handleDisconnect, 1000);
+    }
+  });
+  connection.on('error', function (err) {
+    console.log('db error', err);
 
-  console.log('Base de datos conectada y corriendo');
-});
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      // Connection to the MySQL server is usually
+      handleDisconnect(); // lost due to either server restart, or a
+    } else {
+      // connnection idle timeout (the wait_timeout
+      throw err; // server variable configures this)
+    }
+  });
+};
+
+try {
+  handleDisconnect();
+} catch (error) {
+  console.log("-----------------------------------------------" + error);
+}
+
 app.listen(PORT, function () {
   return console.log("El servidor se est\xE1 ejecutando en ".concat(PORT));
 });
